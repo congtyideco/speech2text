@@ -1,1 +1,1407 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ứng dụng Xử Lý Âm Thanh Thông Minh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 15px;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.3;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: #ddd;
+            line-height: 1.4;
+        }
+        
+        .section {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: #ff9966;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 6px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            padding: 14px 18px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 50px;
+            flex: 1;
+            min-width: 120px;
+            touch-action: manipulation;
+        }
+        
+        .record-btn {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+        }
+        
+        .stop-btn {
+            background: linear-gradient(to right, #36d1dc, #5b86e5);
+            color: white;
+        }
+        
+        .clear-btn {
+            background: linear-gradient(to right, #f46b45, #eea849);
+            color: white;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(to right, #834d9b, #d04ed6);
+            color: white;
+        }
+        
+        .download-btn {
+            background: linear-gradient(to right, #11998e, #38ef7d);
+            color: white;
+        }
+        
+        .export-btn {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            color: white;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            transform: none;
+        }
+        
+        .timer {
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 12px 0;
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+        }
+        
+        .text-container {
+            position: relative;
+            margin-bottom: 12px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 16px;
+            resize: vertical;
+            line-height: 1.5;
+            -webkit-appearance: none;
+        }
+        
+        .text-stats {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #ff9966;
+        }
+        
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        label {
+            font-weight: bold;
+            color: #ddd;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ff9966;
+            cursor: pointer;
+        }
+        
+        select {
+            padding: 12px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 16px;
+            width: 100%;
+        }
+        
+        .audio-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .preview-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #ff9966;
+        }
+        
+        audio {
+            width: 100%;
+            margin-top: 8px;
+            border-radius: 6px;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 12px 0;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .recording {
+            background-color: rgba(255, 65, 108, 0.3);
+            color: #ffccd5;
+        }
+        
+        .processing {
+            background-color: rgba(54, 209, 220, 0.3);
+            color: #caf0f8;
+        }
+        
+        .success {
+            background-color: rgba(56, 239, 125, 0.3);
+            color: #d8f3dc;
+        }
+        
+        .error {
+            background-color: rgba(255, 0, 0, 0.3);
+            color: #ffcccc;
+        }
+        
+        .effect-active {
+            background-color: rgba(255, 193, 7, 0.3);
+            color: #fff3cd;
+        }
+        
+        .punctuation-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        
+        .punctuation-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .punctuation-option input {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .quality-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        
+        .quality-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .text-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        
+        .text-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #ddd;
+            font-size: 0.8rem;
+        }
+        
+        .audio-visualizer {
+            width: 100%;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            margin: 12px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .visualizer-bar {
+            position: absolute;
+            bottom: 0;
+            width: 3px;
+            background: #ff9966;
+            border-radius: 2px 2px 0 0;
+            transition: height 0.1s ease;
+        }
+        
+        .text-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 8px 0;
+        }
+        
+        .text-action-btn {
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 100px;
+            touch-action: manipulation;
+        }
+        
+        .text-action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .confidence-meter {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        
+        .confidence-level {
+            height: 100%;
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .effect-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .mobile-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                max-width: 700px;
+                padding: 25px;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            button {
+                flex: none;
+            }
+            
+            .audio-controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            
+            .punctuation-options, .text-options {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Ứng dụng Xử Lý Âm Thanh Thông Minh</h1>
+            <p class="subtitle">Chuyển giọng nói thành văn bản & Xử lý âm thanh chuyên nghiệp</p>
+        </header>
+        
+        <div class="mobile-warning">
+            <strong>Lưu ý:</strong> Ứng dụng cần quyền truy cập microphone. Vui lòng cho phép khi được hỏi.
+        </div>
+        
+        <div class="section">
+            <h2>Chuyển Giọng Nói Thành Văn Bản</h2>
+            
+            <div class="controls">
+                <button id="recordBtn" class="record-btn">
+                    <i class="fas fa-microphone"></i> Bắt đầu ghi âm
+                </button>
+                <button id="stopBtn" class="stop-btn" disabled>
+                    <i class="fas fa-stop"></i> Dừng ghi âm
+                </button>
+                <button id="clearBtn" class="clear-btn">
+                    <i class="fas fa-trash"></i> Xóa văn bản
+                </button>
+            </div>
+            
+            <div class="timer" id="timer">00:00</div>
+            
+            <div class="quality-options">
+                <div class="quality-option">
+                    <label for="audioQuality">Chất lượng ghi âm:</label>
+                    <select id="audioQuality">
+                        <option value="high">Chất lượng cao</option>
+                        <option value="standard" selected>Tiêu chuẩn</option>
+                        <option value="low">Chất lượng thấp</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="audio-visualizer" id="visualizer"></div>
+            
+            <div class="confidence-meter">
+                <div class="confidence-level" id="confidenceLevel" style="width: 0%"></div>
+            </div>
+            <div style="text-align: center; font-size: 0.8rem; color: #ddd;">
+                Độ tin cậy: <span id="confidenceValue">0%</span>
+            </div>
+            
+            <div class="punctuation-options">
+                <div class="punctuation-option">
+                    <input type="checkbox" id="autoComma" checked>
+                    <label for="autoComma">Tự động thêm dấu phẩy</label>
+                </div>
+                <div class="punctuation-option">
+                    <input type="checkbox" id="autoPeriod" checked>
+                    <label for="autoPeriod">Tự động thêm dấu chấm</label>
+                </div>
+                <div class="punctuation-option">
+                    <input type="checkbox" id="autoCapitalize" checked>
+                    <label for="autoCapitalize">Viết hoa đầu câu</label>
+                </div>
+            </div>
+            
+            <div class="text-container">
+                <textarea id="textOutput" placeholder="Văn bản chuyển đổi sẽ hiển thị ở đây..."></textarea>
+                <div class="text-stats" id="textStats">0 từ | 0 ký tự</div>
+            </div>
+            
+            <div class="text-actions">
+                <button class="text-action-btn" id="formatTextBtn">
+                    <i class="fas fa-align-left"></i> Định dạng
+                </button>
+                <button class="text-action-btn" id="capitalizeBtn">
+                    <i class="fas fa-text-height"></i> Viết hoa
+                </button>
+                <button class="text-action-btn" id="clearTextBtn">
+                    <i class="fas fa-broom"></i> Làm sạch
+                </button>
+                <button class="text-action-btn" id="exportTextBtn">
+                    <i class="fas fa-file-export"></i> Xuất file
+                </button>
+            </div>
+            
+            <div id="recordingStatus" class="status">Sẵn sàng ghi âm</div>
+        </div>
+        
+        <div class="section">
+            <h2>Xử Lý Âm Thanh Chuyên Nghiệp</h2>
+            
+            <div class="controls">
+                <button id="convertBtn" class="convert-btn" disabled>
+                    <i class="fas fa-sync-alt"></i> Áp dụng hiệu ứng
+                </button>
+                <button id="downloadBtn" class="download-btn" disabled>
+                    <i class="fas fa-download"></i> Tải xuống
+                </button>
+            </div>
+            
+            <div class="audio-controls">
+                <div class="control-group">
+                    <label for="pitchControl">
+                        Cao độ (Pitch)
+                        <span class="effect-indicator" id="pitchIndicator"></span>
+                    </label>
+                    <input type="range" id="pitchControl" min="0.5" max="2.0" step="0.1" value="1.0">
+                    <span id="pitchValue">1.0 (Bình thường)</span>
+                </div>
+                
+                <div class="control-group">
+                    <label for="speedControl">
+                        Tốc độ (Tempo)
+                        <span class="effect-indicator" id="speedIndicator"></span>
+                    </label>
+                    <input type="range" id="speedControl" min="0.5" max="2.0" step="0.1" value="1.0">
+                    <span id="speedValue">1.0 (Bình thường)</span>
+                </div>
+                
+                <div class="control-group">
+                    <label for="voiceType">
+                        Biến đổi giọng nói
+                        <span class="effect-indicator" id="voiceIndicator"></span>
+                    </label>
+                    <select id="voiceType">
+                        <option value="original">Giọng gốc</option>
+                        <option value="male_deep">Giọng nam trầm</option>
+                        <option value="male_high">Giọng nam cao</option>
+                        <option value="female_deep">Giọng nữ trầm</option>
+                        <option value="female_high">Giọng nữ cao</option>
+                        <option value="robot">Giọng robot</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="reverbControl">
+                        Hiệu ứng phòng thu
+                        <span class="effect-indicator" id="reverbIndicator"></span>
+                    </label>
+                    <select id="reverbControl">
+                        <option value="none">Không có</option>
+                        <option value="small_room">Phòng nhỏ</option>
+                        <option value="large_room">Phòng lớn</option>
+                        <option value="hall">Hội trường</option>
+                        <option value="cathedral">Nhà thờ</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="audio-preview">
+                <div class="preview-title">Xem trước âm thanh đã xử lý</div>
+                <audio id="audioPreview" controls></audio>
+                <div style="margin-top: 8px; font-size: 0.8rem; color: #ff9966;">
+                    <span id="currentEffects">Hiệu ứng: Chưa áp dụng</span>
+                </div>
+            </div>
+            
+            <div id="conversionStatus" class="status">Chưa có âm thanh để xử lý</div>
+        </div>
+        
+        <footer>
+            <p>Ứng dụng Xử Lý Âm Thanh Thông Minh &copy; 2023 - Phiên bản Pro</p>
+        </footer>
+    </div>
+
+    <!-- Simple icons -->
+    <script>
+        const style = document.createElement('style');
+        style.textContent = `
+            .fas {
+                font-family: Arial;
+                font-weight: bold;
+            }
+            .fa-microphone:before { content: "🎤"; }
+            .fa-stop:before { content: "⏹"; }
+            .fa-trash:before { content: "🗑"; }
+            .fa-sync-alt:before { content: "🔄"; }
+            .fa-download:before { content: "📥"; }
+            .fa-align-left:before { content: "📝"; }
+            .fa-text-height:before { content: "🔠"; }
+            .fa-broom:before { content: "🧹"; }
+            .fa-file-export:before { content: "📤"; }
+        `;
+        document.head.appendChild(style);
+    </script>
+    
+    <script>
+        // DOM Elements
+        const recordBtn = document.getElementById('recordBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const exportTextBtn = document.getElementById('exportTextBtn');
+        const timer = document.getElementById('timer');
+        const textOutput = document.getElementById('textOutput');
+        const recordingStatus = document.getElementById('recordingStatus');
+        const conversionStatus = document.getElementById('conversionStatus');
+        const audioPreview = document.getElementById('audioPreview');
+        const pitchControl = document.getElementById('pitchControl');
+        const speedControl = document.getElementById('speedControl');
+        const voiceType = document.getElementById('voiceType');
+        const reverbControl = document.getElementById('reverbControl');
+        const pitchValue = document.getElementById('pitchValue');
+        const speedValue = document.getElementById('speedValue');
+        const pitchIndicator = document.getElementById('pitchIndicator');
+        const speedIndicator = document.getElementById('speedIndicator');
+        const voiceIndicator = document.getElementById('voiceIndicator');
+        const reverbIndicator = document.getElementById('reverbIndicator');
+        const currentEffects = document.getElementById('currentEffects');
+        const autoComma = document.getElementById('autoComma');
+        const autoPeriod = document.getElementById('autoPeriod');
+        const autoCapitalize = document.getElementById('autoCapitalize');
+        const audioQuality = document.getElementById('audioQuality');
+        const visualizer = document.getElementById('visualizer');
+        const textStats = document.getElementById('textStats');
+        const confidenceLevel = document.getElementById('confidenceLevel');
+        const confidenceValue = document.getElementById('confidenceValue');
+        const formatTextBtn = document.getElementById('formatTextBtn');
+        const capitalizeBtn = document.getElementById('capitalizeBtn');
+        const clearTextBtn = document.getElementById('clearTextBtn');
+
+        // Variables
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioBlob;
+        let recordingInterval;
+        let recordingStartTime;
+        let isRecording = false;
+        let audioContext;
+        let analyser;
+        let processedAudioBlob;
+        let finalTranscript = '';
+        let audioStream;
+        let visualizerBars = [];
+        let currentConfidence = 0;
+        let isProcessing = false;
+
+        // Initialize visualizer
+        function initVisualizer() {
+            visualizer.innerHTML = '';
+            visualizerBars = [];
+            const barCount = 32;
+            const barWidth = visualizer.offsetWidth / barCount;
+            
+            for (let i = 0; i < barCount; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'visualizer-bar';
+                bar.style.left = `${i * barWidth}px`;
+                bar.style.width = `${barWidth - 1}px`;
+                bar.style.height = '0px';
+                visualizer.appendChild(bar);
+                visualizerBars.push(bar);
+            }
+        }
+
+        // Update visualizer
+        function updateVisualizer(dataArray) {
+            if (!visualizerBars.length) return;
+            
+            const barCount = visualizerBars.length;
+            for (let i = 0; i < barCount; i++) {
+                const value = dataArray[i] / 255;
+                const height = Math.max(2, value * visualizer.offsetHeight * 0.8);
+                visualizerBars[i].style.height = `${height}px`;
+                visualizerBars[i].style.background = `hsl(${value * 60 + 200}, 100%, 65%)`;
+            }
+        }
+
+        // Update text statistics
+        function updateTextStats() {
+            const text = textOutput.value;
+            const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const charCount = text.length;
+            textStats.textContent = `${wordCount} từ | ${charCount} ký tự`;
+        }
+
+        // Update confidence meter
+        function updateConfidence(confidence) {
+            currentConfidence = confidence;
+            const percentage = Math.round(confidence * 100);
+            confidenceLevel.style.width = `${percentage}%`;
+            confidenceValue.textContent = `${percentage}%`;
+            
+            if (percentage >= 80) {
+                confidenceLevel.style.background = 'linear-gradient(to right, #11998e, #38ef7d)';
+            } else if (percentage >= 60) {
+                confidenceLevel.style.background = 'linear-gradient(to right, #f46b45, #eea849)';
+            } else {
+                confidenceLevel.style.background = 'linear-gradient(to right, #ff416c, #ff4b2b)';
+            }
+        }
+
+        // Update effect indicators
+        function updateEffectIndicators() {
+            const pitch = parseFloat(pitchControl.value);
+            const speed = parseFloat(speedControl.value);
+            const voice = voiceType.value;
+            const reverb = reverbControl.value;
+
+            pitchIndicator.style.background = pitch !== 1.0 ? '#4CAF50' : '#666';
+            speedIndicator.style.background = speed !== 1.0 ? '#4CAF50' : '#666';
+            voiceIndicator.style.background = voice !== 'original' ? '#4CAF50' : '#666';
+            reverbIndicator.style.background = reverb !== 'none' ? '#4CAF50' : '#666';
+
+            const effects = [];
+            if (pitch !== 1.0) effects.push(`Cao độ: ${pitch.toFixed(1)}x`);
+            if (speed !== 1.0) effects.push(`Tốc độ: ${speed.toFixed(1)}x`);
+            if (voice !== 'original') effects.push(`Giọng: ${voiceType.options[voiceType.selectedIndex].text}`);
+            if (reverb !== 'none') effects.push(`Phòng: ${reverbControl.options[reverbControl.selectedIndex].text}`);
+
+            currentEffects.textContent = effects.length > 0 
+                ? `Hiệu ứng: ${effects.join(', ')}`
+                : 'Hiệu ứng: Chưa áp dụng';
+        }
+
+        // SPEECH RECOGNITION - SỬA LỖI XỬ LÝ VĂN BẢN
+        let recognition;
+        
+        if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'vi-VN';
+            
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    const confidence = event.results[i][0].confidence;
+                    
+                    updateConfidence(confidence);
+                    
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // HIỂN THỊ VĂN BẢN ĐÃ ĐƯỢC XỬ LÝ ĐÚNG CÁCH
+                let displayText = finalTranscript + interimTranscript;
+                
+                // Áp dụng xử lý thông minh - SỬA LỖI $0
+                displayText = applyAdvancedPunctuation(displayText);
+                if (autoCapitalize.checked) {
+                    displayText = capitalizeSentences(displayText);
+                }
+                
+                textOutput.value = displayText;
+                updateTextStats();
+                textOutput.scrollTop = textOutput.scrollHeight;
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                recordingStatus.textContent = `Lỗi: ${event.error}`;
+                recordingStatus.className = 'status error';
+            };
+            
+            recognition.onend = () => {
+                if (isRecording) {
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.log('Restarting recognition...');
+                    }
+                }
+            };
+        }
+
+        // SỬA LỖI: Apply advanced punctuation - KHÔNG DÙNG $0
+        function applyAdvancedPunctuation(text) {
+            if (!text) return text;
+            
+            let processedText = text;
+            
+            // Add commas after certain phrases - SỬA LỖI $0
+            if (autoComma.checked) {
+                // Sử dụng hàm replace đơn giản thay vì pattern với $0
+                processedText = processedText.replace(/\b(và|nhưng|hoặc|nên|vì|tuy nhiên|tuy vậy|vì vậy|do đó)\s/gi, (match) => {
+                    return match + ', ';
+                });
+                
+                processedText = processedText.replace(/\b(sau đó|tiếp theo|cuối cùng|đầu tiên|thứ nhất|thứ hai|thứ ba)\s/gi, (match) => {
+                    return match + ', ';
+                });
+                
+                // Thêm dấu phẩy sau các từ dài
+                processedText = processedText.replace(/([a-zA-ZÀ-ỹ]{8,})\s/gi, (match, word) => {
+                    return word + ', ';
+                });
+            }
+            
+            // Add periods after certain phrases - SỬA LỖI $0
+            if (autoPeriod.checked) {
+                processedText = processedText.replace(/\b(xong|hoàn thành|kết thúc|đã xong|kết luận|tổng kết)\s/gi, (match) => {
+                    return match + '. ';
+                });
+                
+                // Thêm dấu chấm sau các từ rất dài
+                processedText = processedText.replace(/([a-zA-ZÀ-ỹ]{12,})\s/gi, (match, word) => {
+                    return word + '. ';
+                });
+            }
+            
+            return processedText;
+        }
+
+        // Capitalize sentences
+        function capitalizeSentences(text) {
+            if (!text) return text;
+            
+            const sentences = text.split(/(?<=[.!?])\s+/);
+            const capitalizedSentences = sentences.map(sentence => {
+                if (sentence.length > 0) {
+                    const firstLetterIndex = sentence.search(/[a-zA-ZÀ-ỹ]/);
+                    if (firstLetterIndex !== -1) {
+                        return sentence.substring(0, firstLetterIndex) + 
+                               sentence.charAt(firstLetterIndex).toUpperCase() + 
+                               sentence.substring(firstLetterIndex + 1);
+                    }
+                }
+                return sentence;
+            });
+            
+            return capitalizedSentences.join(' ');
+        }
+
+        // SỬA LỖI: Format text - ĐỊNH DẠNG CHÍNH XÁC
+        function formatText() {
+            let text = textOutput.value;
+            
+            if (!text.trim()) {
+                alert('Không có văn bản để định dạng');
+                return;
+            }
+            
+            // 1. Chuẩn hóa khoảng trắng
+            text = text.replace(/\s+/g, ' ');
+            
+            // 2. Đảm bảo có khoảng trắng sau dấu câu
+            text = text.replace(/([.!?])([a-zA-ZÀ-ỹ])/g, '$1 $2');
+            
+            // 3. Loại bỏ khoảng trắng trước dấu câu
+            text = text.replace(/\s+([.,!?])/g, '$1');
+            
+            // 4. Đảm bảo viết hoa đầu câu
+            text = capitalizeSentences(text);
+            
+            // 5. Loại bỏ khoảng trắng ở đầu và cuối
+            text = text.trim();
+            
+            textOutput.value = text;
+            updateTextStats();
+            
+            // Hiển thị thông báo thành công
+            recordingStatus.textContent = 'Đã định dạng văn bản thành công';
+            recordingStatus.className = 'status success';
+            setTimeout(() => {
+                recordingStatus.textContent = 'Sẵn sàng ghi âm';
+                recordingStatus.className = 'status';
+            }, 2000);
+        }
+
+        // Export text
+        function exportText() {
+            const text = textOutput.value;
+            if (!text.trim()) {
+                alert('Không có nội dung để xuất');
+                return;
+            }
+            
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `van_ban_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Get audio constraints
+        function getAudioConstraints() {
+            const quality = audioQuality.value;
+            const baseConstraints = {
+                channelCount: 1,
+                echoCancellation: true,
+                noiseSuppression: true
+            };
+            
+            switch(quality) {
+                case 'high':
+                    return { ...baseConstraints, sampleRate: 44100, sampleSize: 16 };
+                case 'low':
+                    return { ...baseConstraints, sampleRate: 8000, sampleSize: 8 };
+                default:
+                    return { ...baseConstraints, sampleRate: 22050, sampleSize: 16 };
+            }
+        }
+
+        // Event listeners
+        formatTextBtn.addEventListener('click', formatText);
+        capitalizeBtn.addEventListener('click', () => {
+            const text = textOutput.value;
+            if (!text.trim()) {
+                alert('Không có văn bản để viết hoa');
+                return;
+            }
+            textOutput.value = capitalizeSentences(text);
+            updateTextStats();
+            recordingStatus.textContent = 'Đã viết hoa đầu câu';
+            recordingStatus.className = 'status success';
+            setTimeout(() => {
+                recordingStatus.textContent = 'Sẵn sàng ghi âm';
+                recordingStatus.className = 'status';
+            }, 2000);
+        });
+        clearTextBtn.addEventListener('click', () => {
+            textOutput.value = '';
+            finalTranscript = '';
+            updateTextStats();
+            recordingStatus.textContent = 'Đã làm sạch văn bản';
+            recordingStatus.className = 'status success';
+            setTimeout(() => {
+                recordingStatus.textContent = 'Sẵn sàng ghi âm';
+                recordingStatus.className = 'status';
+            }, 2000);
+        });
+        exportTextBtn.addEventListener('click', exportText);
+        
+        textOutput.addEventListener('input', updateTextStats);
+        
+        // Audio effect controls
+        pitchControl.addEventListener('input', () => {
+            const value = parseFloat(pitchControl.value);
+            let description = value < 0.9 ? '(Trầm)' : value > 1.1 ? '(Cao)' : '(Bình thường)';
+            pitchValue.textContent = `${value.toFixed(1)} ${description}`;
+            updateEffectIndicators();
+        });
+        
+        speedControl.addEventListener('input', () => {
+            const value = parseFloat(speedControl.value);
+            let description = value < 0.9 ? '(Chậm)' : value > 1.1 ? '(Nhanh)' : '(Bình thường)';
+            speedValue.textContent = `${value.toFixed(1)} ${description}`;
+            updateEffectIndicators();
+        });
+        
+        voiceType.addEventListener('change', updateEffectIndicators);
+        reverbControl.addEventListener('change', updateEffectIndicators);
+
+        // Record button
+        recordBtn.addEventListener('click', async () => {
+            if (!isRecording) {
+                await startRecording();
+            }
+        });
+        
+        stopBtn.addEventListener('click', () => {
+            if (isRecording) {
+                stopRecording();
+            }
+        });
+        
+        clearBtn.addEventListener('click', () => {
+            textOutput.value = '';
+            finalTranscript = '';
+            updateTextStats();
+            recordingStatus.textContent = 'Đã xóa văn bản';
+            recordingStatus.className = 'status success';
+        });
+
+        // Convert audio with REAL effects
+        convertBtn.addEventListener('click', async () => {
+            if (audioBlob && !isProcessing) {
+                await convertAudioWithEffects();
+            }
+        });
+        
+        downloadBtn.addEventListener('click', () => {
+            if (processedAudioBlob) {
+                downloadProcessedAudio();
+            } else if (audioBlob) {
+                downloadOriginalAudio();
+            }
+        });
+
+        // Start recording
+        async function startRecording() {
+            try {
+                audioChunks = [];
+                finalTranscript = '';
+                recordingStartTime = Date.now();
+                updateTimer();
+                initVisualizer();
+                
+                audioStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: getAudioConstraints() 
+                });
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: 22050
+                });
+                
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+                
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(audioStream);
+                source.connect(analyser);
+                analyser.fftSize = 128;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                
+                function updateVisual() {
+                    if (!isRecording) return;
+                    analyser.getByteFrequencyData(dataArray);
+                    updateVisualizer(dataArray);
+                    requestAnimationFrame(updateVisual);
+                }
+                updateVisual();
+                
+                const options = {
+                    mimeType: 'audio/webm;codecs=opus',
+                    audioBitsPerSecond: 64000
+                };
+                
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options.mimeType = 'audio/webm';
+                }
+                
+                mediaRecorder = new MediaRecorder(audioStream, options);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    audioPreview.src = audioUrl;
+                    
+                    convertBtn.disabled = false;
+                    downloadBtn.disabled = false;
+                    
+                    conversionStatus.textContent = 'Âm thanh đã sẵn sàng để xử lý';
+                    conversionStatus.className = 'status success';
+                };
+                
+                mediaRecorder.start(100);
+                isRecording = true;
+                
+                if (recognition) {
+                    recognition.start();
+                }
+                
+                recordBtn.disabled = true;
+                stopBtn.disabled = false;
+                recordingStatus.textContent = 'Đang ghi âm... Nói vào micro';
+                recordingStatus.className = 'status recording';
+                recordingInterval = setInterval(updateTimer, 1000);
+                
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                recordingStatus.textContent = 'Lỗi khi truy cập microphone. Vui lòng cho phép quyền.';
+                recordingStatus.className = 'status error';
+            }
+        }
+
+        // Stop recording
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                
+                if (recognition) {
+                    recognition.stop();
+                }
+                
+                recordBtn.disabled = false;
+                stopBtn.disabled = true;
+                recordingStatus.textContent = 'Đã dừng ghi âm';
+                recordingStatus.className = 'status success';
+                clearInterval(recordingInterval);
+                
+                if (audioStream) {
+                    audioStream.getTracks().forEach(track => track.stop());
+                }
+            }
+        }
+
+        // Update timer
+        function updateTimer() {
+            const elapsedTime = Math.floor((Date.now() - recordingStartTime) / 1000);
+            const minutes = Math.floor(elapsedTime / 60);
+            const seconds = elapsedTime % 60;
+            timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // REAL audio processing with Web Audio API
+        async function convertAudioWithEffects() {
+            if (isProcessing) return;
+            
+            isProcessing = true;
+            conversionStatus.textContent = 'Đang xử lý âm thanh với hiệu ứng...';
+            conversionStatus.className = 'status processing';
+            convertBtn.disabled = true;
+
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const originalBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                const offlineContext = new OfflineAudioContext({
+                    numberOfChannels: originalBuffer.numberOfChannels,
+                    length: originalBuffer.length * 2,
+                    sampleRate: originalBuffer.sampleRate
+                });
+
+                const source = offlineContext.createBufferSource();
+                source.buffer = originalBuffer;
+
+                const pitch = parseFloat(pitchControl.value);
+                const speed = parseFloat(speedControl.value);
+                const voiceTypeValue = voiceType.value;
+                const reverbType = reverbControl.value;
+
+                source.playbackRate.value = speed;
+                const detuneCents = (pitch - 1) * 1200;
+                source.detune.value = detuneCents;
+
+                let lastNode = source;
+
+                // Voice transformation
+                if (voiceTypeValue !== 'original') {
+                    const filter = offlineContext.createBiquadFilter();
+                    
+                    switch(voiceTypeValue) {
+                        case 'male_deep':
+                            filter.type = 'lowshelf';
+                            filter.frequency.value = 800;
+                            filter.gain.value = 12;
+                            break;
+                        case 'male_high':
+                            filter.type = 'highshelf';
+                            filter.frequency.value = 1500;
+                            filter.gain.value = 8;
+                            break;
+                        case 'female_deep':
+                            filter.type = 'peaking';
+                            filter.frequency.value = 1200;
+                            filter.gain.value = 6;
+                            filter.Q.value = 1;
+                            break;
+                        case 'female_high':
+                            filter.type = 'highshelf';
+                            filter.frequency.value = 2000;
+                            filter.gain.value = 10;
+                            break;
+                        case 'robot':
+                            const oscillator = offlineContext.createOscillator();
+                            oscillator.type = 'sawtooth';
+                            oscillator.frequency.value = 100;
+                            
+                            const modulator = offlineContext.createGain();
+                            modulator.gain.value = 0.3;
+                            
+                            source.connect(modulator);
+                            modulator.connect(oscillator.frequency);
+                            oscillator.connect(offlineContext.destination);
+                            break;
+                    }
+                    
+                    if (voiceTypeValue !== 'robot') {
+                        lastNode.connect(filter);
+                        lastNode = filter;
+                    }
+                }
+
+                // Reverb effect
+                if (reverbType !== 'none') {
+                    const convolver = offlineContext.createConvolver();
+                    const reverbBuffer = createReverbBuffer(offlineContext, reverbType);
+                    convolver.buffer = reverbBuffer;
+                    
+                    const dryGain = offlineContext.createGain();
+                    const wetGain = offlineContext.createGain();
+                    
+                    dryGain.gain.value = 0.7;
+                    wetGain.gain.value = 0.3;
+                    
+                    lastNode.connect(dryGain);
+                    lastNode.connect(convolver);
+                    convolver.connect(wetGain);
+                    
+                    dryGain.connect(offlineContext.destination);
+                    wetGain.connect(offlineContext.destination);
+                } else {
+                    lastNode.connect(offlineContext.destination);
+                }
+
+                source.start(0);
+                const renderedBuffer = await offlineContext.startRendering();
+
+                const wavBlob = bufferToWav(renderedBuffer);
+                processedAudioBlob = wavBlob;
+                
+                const processedUrl = URL.createObjectURL(wavBlob);
+                audioPreview.src = processedUrl;
+
+                conversionStatus.textContent = 'Đã áp dụng hiệu ứng thành công!';
+                conversionStatus.className = 'status success';
+                conversionStatus.classList.add('effect-active');
+
+            } catch (error) {
+                console.error('Audio processing error:', error);
+                conversionStatus.textContent = 'Lỗi xử lý âm thanh. Sử dụng âm thanh gốc.';
+                conversionStatus.className = 'status error';
+                
+                processedAudioBlob = audioBlob;
+                audioPreview.src = URL.createObjectURL(audioBlob);
+            } finally {
+                isProcessing = false;
+                convertBtn.disabled = false;
+            }
+        }
+
+        // Create reverb impulse response
+        function createReverbBuffer(context, reverbType) {
+            const sampleRate = context.sampleRate;
+            let length, decay;
+            
+            switch(reverbType) {
+                case 'small_room':
+                    length = 0.5;
+                    decay = 2;
+                    break;
+                case 'large_room':
+                    length = 1.0;
+                    decay = 1.5;
+                    break;
+                case 'hall':
+                    length = 1.8;
+                    decay = 1.2;
+                    break;
+                case 'cathedral':
+                    length = 3.0;
+                    decay = 0.8;
+                    break;
+                default:
+                    length = 0.5;
+                    decay = 2;
+            }
+            
+            const impulseLength = sampleRate * length;
+            const impulse = context.createBuffer(2, impulseLength, sampleRate);
+            const left = impulse.getChannelData(0);
+            const right = impulse.getChannelData(1);
+            
+            for (let i = 0; i < impulseLength; i++) {
+                const n = i / sampleRate;
+                left[i] = (Math.random() * 2 - 1) * Math.pow(1 - n, decay);
+                right[i] = (Math.random() * 2 - 1) * Math.pow(1 - n, decay);
+            }
+            
+            return impulse;
+        }
+
+        // Convert AudioBuffer to WAV
+        function bufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const format = 1;
+            const bitDepth = 16;
+            
+            const bytesPerSample = bitDepth / 8;
+            const blockAlign = numChannels * bytesPerSample;
+            
+            const wavBuffer = new ArrayBuffer(44 + buffer.length * blockAlign);
+            const view = new DataView(wavBuffer);
+            
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + buffer.length * blockAlign, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, format, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitDepth, true);
+            writeString(36, 'data');
+            view.setUint32(40, buffer.length * blockAlign, true);
+            
+            let offset = 44;
+            for (let i = 0; i < buffer.length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            
+            return new Blob([wavBuffer], { type: 'audio/wav' });
+        }
+
+        // Download processed audio
+        function downloadProcessedAudio() {
+            if (processedAudioBlob) {
+                const url = URL.createObjectURL(processedAudioBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                
+                const pitch = parseFloat(pitchControl.value);
+                const speed = parseFloat(speedControl.value);
+                const voice = voiceType.options[voiceType.selectedIndex].text;
+                const reverb = reverbControl.options[reverbControl.selectedIndex].text;
+                
+                a.download = `am_thanh_xu_ly_${voice}_p${pitch.toFixed(1)}_s${speed.toFixed(1)}_${reverb}.wav`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                conversionStatus.textContent = 'Đã tải xuống file âm thanh đã xử lý!';
+                conversionStatus.className = 'status success';
+            }
+        }
+
+        // Download original audio
+        function downloadOriginalAudio() {
+            if (audioBlob) {
+                const url = URL.createObjectURL(audioBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `am_thanh_goc_${new Date().getTime()}.webm`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                conversionStatus.textContent = 'Đã tải xuống âm thanh gốc!';
+                conversionStatus.className = 'status success';
+            }
+        }
+
+        // Initialize
+        initVisualizer();
+        updateTextStats();
+        updateEffectIndicators();
+
+        // Prevent default touch behaviors
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Handle orientation changes
+        window.addEventListener('orientationchange', function() {
+            setTimeout(initVisualizer, 100);
+        });
+    </script>
+</body>
+</html>
 
