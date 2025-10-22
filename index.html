@@ -115,8 +115,13 @@
             color: white;
         }
         
-        .export-btn {
+        .upload-btn {
             background: linear-gradient(to right, #8e2de2, #4a00e0);
+            color: white;
+        }
+        
+        .export-btn {
+            background: linear-gradient(to right, #ff6b6b, #ffa726);
             color: white;
         }
         
@@ -179,6 +184,28 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+        }
+        
+        .advanced-controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .pitch-controls {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .pitch-control-item {
+            margin-bottom: 12px;
+        }
+        
+        .pitch-control-item:last-child {
+            margin-bottom: 0;
         }
         
         label {
@@ -386,6 +413,52 @@
             animation: pulse 2s infinite;
         }
         
+        .file-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #ff9966;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .upload-text {
+            font-size: 0.9rem;
+            color: #ddd;
+        }
+        
+        .file-info {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #ff9966;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .control-value {
+            font-size: 0.8rem;
+            color: #ff9966;
+            text-align: right;
+        }
+        
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -422,6 +495,10 @@
                 gap: 20px;
             }
             
+            .advanced-controls {
+                grid-template-columns: 1fr 1fr;
+            }
+            
             .punctuation-options, .text-options {
                 grid-template-columns: 1fr 1fr;
             }
@@ -440,18 +517,29 @@
         </div>
         
         <div class="section">
-            <h2>Chuyển Giọng Nói Thành Văn Bản</h2>
+            <h2>Nguồn Âm Thanh</h2>
             
             <div class="controls">
                 <button id="recordBtn" class="record-btn">
-                    <i class="fas fa-microphone"></i> Bắt đầu ghi âm
+                    <i class="fas fa-microphone"></i> Ghi âm
                 </button>
                 <button id="stopBtn" class="stop-btn" disabled>
-                    <i class="fas fa-stop"></i> Dừng ghi âm
+                    <i class="fas fa-stop"></i> Dừng
+                </button>
+                <button id="uploadBtn" class="upload-btn">
+                    <i class="fas fa-upload"></i> Upload file
                 </button>
                 <button id="clearBtn" class="clear-btn">
-                    <i class="fas fa-trash"></i> Xóa văn bản
+                    <i class="fas fa-trash"></i> Xóa
                 </button>
+            </div>
+            
+            <input type="file" id="fileInput" class="hidden" accept="audio/*">
+            
+            <div class="file-upload-area" id="fileUploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Kéo thả file audio vào đây hoặc click để chọn file</div>
+                <div class="file-info" id="fileInfo">Hỗ trợ: MP3, WAV, OGG (tối đa 10MB)</div>
             </div>
             
             <div class="timer" id="timer">00:00</div>
@@ -475,6 +563,10 @@
             <div style="text-align: center; font-size: 0.8rem; color: #ddd;">
                 Độ tin cậy: <span id="confidenceValue">0%</span>
             </div>
+        </div>
+        
+        <div class="section">
+            <h2>Chuyển Giọng Nói Thành Văn Bản</h2>
             
             <div class="punctuation-options">
                 <div class="punctuation-option">
@@ -529,7 +621,7 @@
             <div class="audio-controls">
                 <div class="control-group">
                     <label for="pitchControl">
-                        Cao độ (Pitch)
+                        Cao độ chính
                         <span class="effect-indicator" id="pitchIndicator"></span>
                     </label>
                     <input type="range" id="pitchControl" min="0.5" max="2.0" step="0.1" value="1.0">
@@ -538,7 +630,7 @@
                 
                 <div class="control-group">
                     <label for="speedControl">
-                        Tốc độ (Tempo)
+                        Tốc độ
                         <span class="effect-indicator" id="speedIndicator"></span>
                     </label>
                     <input type="range" id="speedControl" min="0.5" max="2.0" step="0.1" value="1.0">
@@ -575,6 +667,69 @@
                 </div>
             </div>
             
+            <div class="advanced-controls">
+                <div class="pitch-controls">
+                    <h3 style="color: #ff9966; margin-bottom: 15px; font-size: 1rem;">Điều chỉnh cao độ chi tiết</h3>
+                    
+                    <div class="pitch-control-item">
+                        <label for="bassControl">Âm trầm (Bass)</label>
+                        <input type="range" id="bassControl" min="0" max="2" step="0.1" value="1.0">
+                        <div class="control-value" id="bassValue">1.0</div>
+                    </div>
+                    
+                    <div class="pitch-control-item">
+                        <label for="midControl">Âm trung (Mid)</label>
+                        <input type="range" id="midControl" min="0" max="2" step="0.1" value="1.0">
+                        <div class="control-value" id="midValue">1.0</div>
+                    </div>
+                    
+                    <div class="pitch-control-item">
+                        <label for="trebleControl">Âm cao (Treble)</label>
+                        <input type="range" id="trebleControl" min="0" max="2" step="0.1" value="1.0">
+                        <div class="control-value" id="trebleValue">1.0</div>
+                    </div>
+                    
+                    <div class="pitch-control-item">
+                        <label for="formantControl">Độ sáng giọng (Formant)</label>
+                        <input type="range" id="formantControl" min="0.5" max="1.5" step="0.1" value="1.0">
+                        <div class="control-value" id="formantValue">1.0</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="noiseReduction">
+                        Lọc tiếng ồn
+                        <span class="effect-indicator" id="noiseIndicator"></span>
+                    </label>
+                    <select id="noiseReduction">
+                        <option value="none">Không lọc</option>
+                        <option value="light">Lọc nhẹ</option>
+                        <option value="medium">Lọc trung bình</option>
+                        <option value="strong">Lọc mạnh</option>
+                        <option value="aggressive">Lọc tích cực</option>
+                    </select>
+                    
+                    <label for="compressionControl" style="margin-top: 15px;">
+                        Nén âm thanh
+                        <span class="effect-indicator" id="compressionIndicator"></span>
+                    </label>
+                    <input type="range" id="compressionControl" min="1" max="10" step="1" value="1">
+                    <div class="control-value" id="compressionValue">1 (Không nén)</div>
+                    
+                    <label for="eqControl" style="margin-top: 15px;">
+                        Cân bằng âm sắc
+                        <span class="effect-indicator" id="eqIndicator"></span>
+                    </label>
+                    <select id="eqControl">
+                        <option value="flat">Phẳng</option>
+                        <option value="bass_boost">Tăng âm trầm</option>
+                        <option value="treble_boost">Tăng âm cao</option>
+                        <option value="voice">Tối ưu giọng nói</option>
+                        <option value="custom">Tùy chỉnh</option>
+                    </select>
+                </div>
+            </div>
+            
             <div class="audio-preview">
                 <div class="preview-title">Xem trước âm thanh đã xử lý</div>
                 <audio id="audioPreview" controls></audio>
@@ -604,10 +759,11 @@
             .fa-trash:before { content: "🗑"; }
             .fa-sync-alt:before { content: "🔄"; }
             .fa-download:before { content: "📥"; }
+            .fa-upload:before { content: "📤"; }
             .fa-align-left:before { content: "📝"; }
             .fa-text-height:before { content: "🔠"; }
             .fa-broom:before { content: "🧹"; }
-            .fa-file-export:before { content: "📤"; }
+            .fa-file-export:before { content: "💾"; }
         `;
         document.head.appendChild(style);
     </script>
@@ -616,25 +772,53 @@
         // DOM Elements
         const recordBtn = document.getElementById('recordBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
         const clearBtn = document.getElementById('clearBtn');
         const convertBtn = document.getElementById('convertBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const exportTextBtn = document.getElementById('exportTextBtn');
+        const fileInput = document.getElementById('fileInput');
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInfo = document.getElementById('fileInfo');
         const timer = document.getElementById('timer');
         const textOutput = document.getElementById('textOutput');
         const recordingStatus = document.getElementById('recordingStatus');
         const conversionStatus = document.getElementById('conversionStatus');
         const audioPreview = document.getElementById('audioPreview');
+        
+        // Basic controls
         const pitchControl = document.getElementById('pitchControl');
         const speedControl = document.getElementById('speedControl');
         const voiceType = document.getElementById('voiceType');
         const reverbControl = document.getElementById('reverbControl');
+        
+        // Advanced controls
+        const bassControl = document.getElementById('bassControl');
+        const midControl = document.getElementById('midControl');
+        const trebleControl = document.getElementById('trebleControl');
+        const formantControl = document.getElementById('formantControl');
+        const noiseReduction = document.getElementById('noiseReduction');
+        const compressionControl = document.getElementById('compressionControl');
+        const eqControl = document.getElementById('eqControl');
+        
+        // Display values
         const pitchValue = document.getElementById('pitchValue');
         const speedValue = document.getElementById('speedValue');
+        const bassValue = document.getElementById('bassValue');
+        const midValue = document.getElementById('midValue');
+        const trebleValue = document.getElementById('trebleValue');
+        const formantValue = document.getElementById('formantValue');
+        const compressionValue = document.getElementById('compressionValue');
+        
+        // Indicators
         const pitchIndicator = document.getElementById('pitchIndicator');
         const speedIndicator = document.getElementById('speedIndicator');
         const voiceIndicator = document.getElementById('voiceIndicator');
         const reverbIndicator = document.getElementById('reverbIndicator');
+        const noiseIndicator = document.getElementById('noiseIndicator');
+        const compressionIndicator = document.getElementById('compressionIndicator');
+        const eqIndicator = document.getElementById('eqIndicator');
+        
         const currentEffects = document.getElementById('currentEffects');
         const autoComma = document.getElementById('autoComma');
         const autoPeriod = document.getElementById('autoPeriod');
@@ -663,6 +847,7 @@
         let visualizerBars = [];
         let currentConfidence = 0;
         let isProcessing = false;
+        let currentAudioFile = null;
 
         // Initialize visualizer
         function initVisualizer() {
@@ -725,24 +910,46 @@
             const speed = parseFloat(speedControl.value);
             const voice = voiceType.value;
             const reverb = reverbControl.value;
+            const noise = noiseReduction.value;
+            const compression = parseFloat(compressionControl.value);
+            const eq = eqControl.value;
+            const bass = parseFloat(bassControl.value);
+            const mid = parseFloat(midControl.value);
+            const treble = parseFloat(trebleControl.value);
+            const formant = parseFloat(formantControl.value);
 
+            // Update indicators
             pitchIndicator.style.background = pitch !== 1.0 ? '#4CAF50' : '#666';
             speedIndicator.style.background = speed !== 1.0 ? '#4CAF50' : '#666';
             voiceIndicator.style.background = voice !== 'original' ? '#4CAF50' : '#666';
             reverbIndicator.style.background = reverb !== 'none' ? '#4CAF50' : '#666';
+            noiseIndicator.style.background = noise !== 'none' ? '#4CAF50' : '#666';
+            compressionIndicator.style.background = compression !== 1 ? '#4CAF50' : '#666';
+            eqIndicator.style.background = eq !== 'flat' ? '#4CAF50' : '#666';
 
+            // Update display values
+            bassValue.textContent = bass.toFixed(1);
+            midValue.textContent = mid.toFixed(1);
+            trebleValue.textContent = treble.toFixed(1);
+            formantValue.textContent = formant.toFixed(1);
+            compressionValue.textContent = `${compression} ${compression === 1 ? '(Không nén)' : compression < 5 ? '(Nén nhẹ)' : '(Nén mạnh)'}`;
+
+            // Update current effects text
             const effects = [];
             if (pitch !== 1.0) effects.push(`Cao độ: ${pitch.toFixed(1)}x`);
             if (speed !== 1.0) effects.push(`Tốc độ: ${speed.toFixed(1)}x`);
             if (voice !== 'original') effects.push(`Giọng: ${voiceType.options[voiceType.selectedIndex].text}`);
             if (reverb !== 'none') effects.push(`Phòng: ${reverbControl.options[reverbControl.selectedIndex].text}`);
+            if (noise !== 'none') effects.push(`Lọc ồn: ${noiseReduction.options[noiseReduction.selectedIndex].text}`);
+            if (compression !== 1) effects.push(`Nén: ${compression}x`);
+            if (eq !== 'flat') effects.push(`Âm sắc: ${eqControl.options[eqControl.selectedIndex].text}`);
 
             currentEffects.textContent = effects.length > 0 
                 ? `Hiệu ứng: ${effects.join(', ')}`
                 : 'Hiệu ứng: Chưa áp dụng';
         }
 
-        // SPEECH RECOGNITION - SỬA LỖI XỬ LÝ VĂN BẢN
+        // SPEECH RECOGNITION
         let recognition;
         
         if (window.SpeechRecognition || window.webkitSpeechRecognition) {
@@ -768,10 +975,7 @@
                     }
                 }
                 
-                // HIỂN THỊ VĂN BẢN ĐÃ ĐƯỢC XỬ LÝ ĐÚNG CÁCH
                 let displayText = finalTranscript + interimTranscript;
-                
-                // Áp dụng xử lý thông minh - SỬA LỖI $0
                 displayText = applyAdvancedPunctuation(displayText);
                 if (autoCapitalize.checked) {
                     displayText = capitalizeSentences(displayText);
@@ -799,15 +1003,13 @@
             };
         }
 
-        // SỬA LỖI: Apply advanced punctuation - KHÔNG DÙNG $0
+        // Apply advanced punctuation
         function applyAdvancedPunctuation(text) {
             if (!text) return text;
             
             let processedText = text;
             
-            // Add commas after certain phrases - SỬA LỖI $0
             if (autoComma.checked) {
-                // Sử dụng hàm replace đơn giản thay vì pattern với $0
                 processedText = processedText.replace(/\b(và|nhưng|hoặc|nên|vì|tuy nhiên|tuy vậy|vì vậy|do đó)\s/gi, (match) => {
                     return match + ', ';
                 });
@@ -816,19 +1018,16 @@
                     return match + ', ';
                 });
                 
-                // Thêm dấu phẩy sau các từ dài
                 processedText = processedText.replace(/([a-zA-ZÀ-ỹ]{8,})\s/gi, (match, word) => {
                     return word + ', ';
                 });
             }
             
-            // Add periods after certain phrases - SỬA LỖI $0
             if (autoPeriod.checked) {
                 processedText = processedText.replace(/\b(xong|hoàn thành|kết thúc|đã xong|kết luận|tổng kết)\s/gi, (match) => {
                     return match + '. ';
                 });
                 
-                // Thêm dấu chấm sau các từ rất dài
                 processedText = processedText.replace(/([a-zA-ZÀ-ỹ]{12,})\s/gi, (match, word) => {
                     return word + '. ';
                 });
@@ -857,7 +1056,7 @@
             return capitalizedSentences.join(' ');
         }
 
-        // SỬA LỖI: Format text - ĐỊNH DẠNG CHÍNH XÁC
+        // Format text
         function formatText() {
             let text = textOutput.value;
             
@@ -866,25 +1065,15 @@
                 return;
             }
             
-            // 1. Chuẩn hóa khoảng trắng
             text = text.replace(/\s+/g, ' ');
-            
-            // 2. Đảm bảo có khoảng trắng sau dấu câu
             text = text.replace(/([.!?])([a-zA-ZÀ-ỹ])/g, '$1 $2');
-            
-            // 3. Loại bỏ khoảng trắng trước dấu câu
             text = text.replace(/\s+([.,!?])/g, '$1');
-            
-            // 4. Đảm bảo viết hoa đầu câu
             text = capitalizeSentences(text);
-            
-            // 5. Loại bỏ khoảng trắng ở đầu và cuối
             text = text.trim();
             
             textOutput.value = text;
             updateTextStats();
             
-            // Hiển thị thông báo thành công
             recordingStatus.textContent = 'Đã định dạng văn bản thành công';
             recordingStatus.className = 'status success';
             setTimeout(() => {
@@ -931,7 +1120,72 @@
             }
         }
 
-        // Event listeners
+        // FILE UPLOAD HANDLING
+        function handleFileUpload(file) {
+            if (!file.type.startsWith('audio/')) {
+                alert('Vui lòng chọn file âm thanh (MP3, WAV, OGG)');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File quá lớn. Vui lòng chọn file nhỏ hơn 10MB');
+                return;
+            }
+            
+            currentAudioFile = file;
+            fileInfo.textContent = `Đã chọn: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                audioBlob = new Blob([e.target.result], { type: file.type });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioPreview.src = audioUrl;
+                
+                convertBtn.disabled = false;
+                downloadBtn.disabled = false;
+                
+                conversionStatus.textContent = 'File âm thanh đã sẵn sàng để xử lý';
+                conversionStatus.className = 'status success';
+                
+                recordingStatus.textContent = `Đã tải file: ${file.name}`;
+                recordingStatus.className = 'status success';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Event listeners for file upload
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+        
+        fileUploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+        
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+        
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Event listeners for text actions
         formatTextBtn.addEventListener('click', formatText);
         capitalizeBtn.addEventListener('click', () => {
             const text = textOutput.value;
@@ -964,22 +1218,16 @@
         textOutput.addEventListener('input', updateTextStats);
         
         // Audio effect controls
-        pitchControl.addEventListener('input', () => {
-            const value = parseFloat(pitchControl.value);
-            let description = value < 0.9 ? '(Trầm)' : value > 1.1 ? '(Cao)' : '(Bình thường)';
-            pitchValue.textContent = `${value.toFixed(1)} ${description}`;
-            updateEffectIndicators();
-        });
+        const allControls = [
+            pitchControl, speedControl, voiceType, reverbControl,
+            bassControl, midControl, trebleControl, formantControl,
+            noiseReduction, compressionControl, eqControl
+        ];
         
-        speedControl.addEventListener('input', () => {
-            const value = parseFloat(speedControl.value);
-            let description = value < 0.9 ? '(Chậm)' : value > 1.1 ? '(Nhanh)' : '(Bình thường)';
-            speedValue.textContent = `${value.toFixed(1)} ${description}`;
-            updateEffectIndicators();
+        allControls.forEach(control => {
+            control.addEventListener('input', updateEffectIndicators);
+            control.addEventListener('change', updateEffectIndicators);
         });
-        
-        voiceType.addEventListener('change', updateEffectIndicators);
-        reverbControl.addEventListener('change', updateEffectIndicators);
 
         // Record button
         recordBtn.addEventListener('click', async () => {
@@ -997,12 +1245,18 @@
         clearBtn.addEventListener('click', () => {
             textOutput.value = '';
             finalTranscript = '';
+            audioPreview.src = '';
+            audioBlob = null;
+            currentAudioFile = null;
+            fileInfo.textContent = 'Hỗ trợ: MP3, WAV, OGG (tối đa 10MB)';
             updateTextStats();
-            recordingStatus.textContent = 'Đã xóa văn bản';
+            convertBtn.disabled = true;
+            downloadBtn.disabled = true;
+            recordingStatus.textContent = 'Đã xóa tất cả';
             recordingStatus.className = 'status success';
         });
 
-        // Convert audio with REAL effects
+        // Convert audio with ADVANCED effects
         convertBtn.addEventListener('click', async () => {
             if (audioBlob && !isProcessing) {
                 await convertAudioWithEffects();
@@ -1132,12 +1386,12 @@
             timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        // REAL audio processing with Web Audio API
+        // ADVANCED audio processing with Web Audio API
         async function convertAudioWithEffects() {
             if (isProcessing) return;
             
             isProcessing = true;
-            conversionStatus.textContent = 'Đang xử lý âm thanh với hiệu ứng...';
+            conversionStatus.textContent = 'Đang xử lý âm thanh với hiệu ứng nâng cao...';
             conversionStatus.className = 'status processing';
             convertBtn.disabled = true;
 
@@ -1155,16 +1409,122 @@
                 const source = offlineContext.createBufferSource();
                 source.buffer = originalBuffer;
 
+                // Get all effect values
                 const pitch = parseFloat(pitchControl.value);
                 const speed = parseFloat(speedControl.value);
                 const voiceTypeValue = voiceType.value;
                 const reverbType = reverbControl.value;
+                const noiseLevel = noiseReduction.value;
+                const compression = parseFloat(compressionControl.value);
+                const eqType = eqControl.value;
+                const bass = parseFloat(bassControl.value);
+                const mid = parseFloat(midControl.value);
+                const treble = parseFloat(trebleControl.value);
+                const formant = parseFloat(formantControl.value);
 
+                // Apply basic effects
                 source.playbackRate.value = speed;
                 const detuneCents = (pitch - 1) * 1200;
                 source.detune.value = detuneCents;
 
                 let lastNode = source;
+
+                // Noise reduction
+                if (noiseLevel !== 'none') {
+                    const noiseFilter = offlineContext.createBiquadFilter();
+                    let reductionStrength = 0;
+                    
+                    switch(noiseLevel) {
+                        case 'light': reductionStrength = 500; break;
+                        case 'medium': reductionStrength = 1000; break;
+                        case 'strong': reductionStrength = 2000; break;
+                        case 'aggressive': reductionStrength = 4000; break;
+                    }
+                    
+                    noiseFilter.type = 'highpass';
+                    noiseFilter.frequency.value = reductionStrength;
+                    lastNode.connect(noiseFilter);
+                    lastNode = noiseFilter;
+                }
+
+                // EQ adjustments
+                if (bass !== 1.0 || mid !== 1.0 || treble !== 1.0) {
+                    // Bass control
+                    if (bass !== 1.0) {
+                        const bassFilter = offlineContext.createBiquadFilter();
+                        bassFilter.type = 'lowshelf';
+                        bassFilter.frequency.value = 250;
+                        bassFilter.gain.value = (bass - 1) * 12;
+                        lastNode.connect(bassFilter);
+                        lastNode = bassFilter;
+                    }
+                    
+                    // Mid control
+                    if (mid !== 1.0) {
+                        const midFilter = offlineContext.createBiquadFilter();
+                        midFilter.type = 'peaking';
+                        midFilter.frequency.value = 1000;
+                        midFilter.gain.value = (mid - 1) * 12;
+                        midFilter.Q.value = 1;
+                        lastNode.connect(midFilter);
+                        lastNode = midFilter;
+                    }
+                    
+                    // Treble control
+                    if (treble !== 1.0) {
+                        const trebleFilter = offlineContext.createBiquadFilter();
+                        trebleFilter.type = 'highshelf';
+                        trebleFilter.frequency.value = 4000;
+                        trebleFilter.gain.value = (treble - 1) * 12;
+                        lastNode.connect(trebleFilter);
+                        lastNode = trebleFilter;
+                    }
+                }
+
+                // Preset EQ
+                if (eqType !== 'flat' && eqType !== 'custom') {
+                    const eqFilter = offlineContext.createBiquadFilter();
+                    
+                    switch(eqType) {
+                        case 'bass_boost':
+                            eqFilter.type = 'lowshelf';
+                            eqFilter.frequency.value = 200;
+                            eqFilter.gain.value = 8;
+                            break;
+                        case 'treble_boost':
+                            eqFilter.type = 'highshelf';
+                            eqFilter.frequency.value = 3000;
+                            eqFilter.gain.value = 8;
+                            break;
+                        case 'voice':
+                            eqFilter.type = 'peaking';
+                            eqFilter.frequency.value = 1500;
+                            eqFilter.gain.value = 6;
+                            eqFilter.Q.value = 1.5;
+                            break;
+                    }
+                    
+                    lastNode.connect(eqFilter);
+                    lastNode = eqFilter;
+                }
+
+                // Formant shifting for voice character
+                if (formant !== 1.0) {
+                    // Simple formant shift using bandpass filters
+                    const formantFilter1 = offlineContext.createBiquadFilter();
+                    formantFilter1.type = 'bandpass';
+                    formantFilter1.frequency.value = 800 * formant;
+                    formantFilter1.Q.value = 2;
+                    
+                    const formantFilter2 = offlineContext.createBiquadFilter();
+                    formantFilter2.type = 'bandpass';
+                    formantFilter2.frequency.value = 1200 * formant;
+                    formantFilter2.Q.value = 2;
+                    
+                    lastNode.connect(formantFilter1);
+                    formantFilter1.connect(formantFilter2);
+                    lastNode = formantFilter2;
+                }
 
                 // Voice transformation
                 if (voiceTypeValue !== 'original') {
@@ -1200,7 +1560,7 @@
                             const modulator = offlineContext.createGain();
                             modulator.gain.value = 0.3;
                             
-                            source.connect(modulator);
+                            lastNode.connect(modulator);
                             modulator.connect(oscillator.frequency);
                             oscillator.connect(offlineContext.destination);
                             break;
@@ -1210,6 +1570,19 @@
                         lastNode.connect(filter);
                         lastNode = filter;
                     }
+                }
+
+                // Compression
+                if (compression > 1) {
+                    const compressor = offlineContext.createDynamicsCompressor();
+                    compressor.threshold.value = -30;
+                    compressor.knee.value = 10;
+                    compressor.ratio.value = compression;
+                    compressor.attack.value = 0.003;
+                    compressor.release.value = 0.25;
+                    
+                    lastNode.connect(compressor);
+                    lastNode = compressor;
                 }
 
                 // Reverb effect
@@ -1243,7 +1616,7 @@
                 const processedUrl = URL.createObjectURL(wavBlob);
                 audioPreview.src = processedUrl;
 
-                conversionStatus.textContent = 'Đã áp dụng hiệu ứng thành công!';
+                conversionStatus.textContent = 'Đã áp dụng hiệu ứng nâng cao thành công!';
                 conversionStatus.className = 'status success';
                 conversionStatus.classList.add('effect-active');
 
@@ -1357,8 +1730,9 @@
                 const speed = parseFloat(speedControl.value);
                 const voice = voiceType.options[voiceType.selectedIndex].text;
                 const reverb = reverbControl.options[reverbControl.selectedIndex].text;
+                const noise = noiseReduction.options[noiseReduction.selectedIndex].text;
                 
-                a.download = `am_thanh_xu_ly_${voice}_p${pitch.toFixed(1)}_s${speed.toFixed(1)}_${reverb}.wav`;
+                a.download = `am_thanh_xu_ly_${voice}_p${pitch.toFixed(1)}_s${speed.toFixed(1)}_${reverb}_${noise}.wav`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1375,7 +1749,8 @@
                 const url = URL.createObjectURL(audioBlob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `am_thanh_goc_${new Date().getTime()}.webm`;
+                const fileName = currentAudioFile ? currentAudioFile.name : `am_thanh_goc_${new Date().getTime()}`;
+                a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1404,5 +1779,3 @@
     </script>
 </body>
 </html>
-
-
